@@ -17,13 +17,12 @@ export default function ResultsPage() {
 
   useEffect(() => {
     const stored = sessionStorage.getItem("parsedData");
-    console.log(stored)
     if (stored) {
       const parsed = JSON.parse(stored) as ParsedData;
       setData(parsed);
     }
   }, []);
-
+  console.log(data);
   function buildList(items: any[]) {
     if (!items || items.length === 0) return <p>Not specified</p>;
 
@@ -53,22 +52,30 @@ export default function ResultsPage() {
     if (!data) return;
 
     try {
-      const response = await fetch("/add_event", {
+      const response = await fetch("http://localhost:4000/api/add_event", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ dict: data }),
       });
 
       const result = await response.json();
       if (result.success) {
         alert("Event added successfully!");
         window.location.href = "/";
+      } else if (result.exists){
+        alert("Event already exists!");
+        window.location.href = "/";
       } else {
-        alert("Failed to add event.");
+        alert("Failed to add event");
         console.error(result.error);
       }
-    } catch (err) {
-      console.error("Error adding event:", err);
+    } catch (error) {
+      const err = error as { code: string };
+      if (err.code === '23505') {
+        alert('Event already exists');
+        window.location.href = "/";
+      }
+      throw error;
     }
   }
 

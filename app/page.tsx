@@ -56,6 +56,17 @@ export default function Landing() {
                     Parse
                 </button>
             </form>
+            <table border={1} className="mt-4">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Event</th>
+                        <th>Link</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
             {loading && <LoadingOverlay />}
         </main>
     );
