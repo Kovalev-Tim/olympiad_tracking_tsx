@@ -3,6 +3,7 @@ dotenv.config();
 
 import puppeteer from "puppeteer";
 import OpenAI from "openai";
+import { constrainedMemory } from "process";
 
 
 const systemPrompt = `You are an intelligent extraction assistant designed to analyze and summarize academic competition webpages.
@@ -124,7 +125,7 @@ function parseSections(rawText) {
     // Remove empty sections and trim whitespace
     splitSections = splitSections.filter((section) => section.trim() !== "");
     let parsed = {};
-    for (let i = 1; i < splitSections.length; i += 2) {
+    for (let i = 0; i < splitSections.length; i += 2) {
         const title = splitSections[i].trim().toLowerCase();
         const content = splitSections[i + 1].trim();
         const lines = content
@@ -185,4 +186,3 @@ async function ScrapeReturnDict(url) {
 }
 
 export { ScrapeReturnDict };
-

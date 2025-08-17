@@ -17,7 +17,11 @@ export default function ResultsPage() {
 
   useEffect(() => {
     const stored = sessionStorage.getItem("parsedData");
-    setData(stored? JSON.parse(stored) : null);
+    console.log(stored)
+    if (stored) {
+      const parsed = JSON.parse(stored) as ParsedData;
+      setData(parsed);
+    }
   }, []);
 
   function buildList(items: any[]) {
