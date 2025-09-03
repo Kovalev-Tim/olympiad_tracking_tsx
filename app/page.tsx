@@ -1,11 +1,16 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import LoadingOverlay  from "./components";
+import React, { use, useEffect, useState } from "react";
+import Calendar from "./components/fullcalendar";
+import LoadingOverlay  from "./components/loading";
 import "./globals.css";
 
 
-
+interface Event {
+    title: string;
+    start: string;
+    end?: string;
+}
 
 export default function Landing() {
     const router = useRouter();
@@ -38,6 +43,15 @@ export default function Landing() {
         }
 
     }
+
+    const [events, setEvents] = useState<Event[]>([]);
+    useEffect(() => {
+        fetch("/api/events")
+        .then((res) => res.json())
+        .then((data) => setEvents(data))
+        .catch((err) => console.error(err));
+    })
+
     return (
         <main className="p-6">
             <h1 className="text-2xl font-bold">🏆 Olympiad Info Extractor</h1>
@@ -56,17 +70,7 @@ export default function Landing() {
                     Parse
                 </button>
             </form>
-            <table border={1} className="mt-4">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Date</th>
-                        <th>Event</th>
-                        <th>Link</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <Calendar events={events} />
             {loading && <LoadingOverlay />}
         </main>
     );

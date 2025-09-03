@@ -76,6 +76,8 @@ app.post('/api/add_event', async (req, res) => {
 });
 
 
+
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
