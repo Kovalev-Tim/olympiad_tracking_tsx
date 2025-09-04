@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from "cors";
 import { ScrapeReturnDict } from './scrape.js'; // Adjust the import path as necessary
-import pool from './db.js';
+import pool from '../../lib/db.js';
 
 dotenv.config();
 
@@ -76,7 +76,24 @@ app.post('/api/add_event', async (req, res) => {
 });
 
 
-
+app.post('/api/events', async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT o.name, a.action, a.date_start, a.date_end
+            FROM olympiad_events a
+            JOIN olympiads o ON a.olympiad_id = o.id`
+        );
+        const events = result.rows.map((row) => ({
+            title: `${row.name} - ${row.action}`,
+            start: row.date_start,
+            end: row.date_end,
+        }));
+        res.status(200).json(events);
+    } catch (err) {
+        console.error("Error fetching events:", err);
+        res.status(500).json({ error: "Failed to fetch events" });
+    }
+});
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

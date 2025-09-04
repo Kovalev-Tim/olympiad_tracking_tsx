@@ -62,3 +62,11 @@ VALUES (
     'Rewards',
     'https://example.com/olympiad'
 );
+
+INSERT INTO olympiad_events (olympiad_id, action, date_start, date_end)
+VALUES (
+    (SELECT id FROM olympiads WHERE name = 'Olympiad Name'),
+    'Event Name',
+    '2025-09-03 12:00:00',
+    '2025-09-03 13:15:00'
+);

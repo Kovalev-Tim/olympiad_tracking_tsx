@@ -52,7 +52,7 @@ export default function ResultsPage() {
     if (!data) return;
 
     try {
-      const response = await fetch("http://localhost:4000/api/add_event", {
+      const response = await fetch("/api/add_event", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dict: data }),

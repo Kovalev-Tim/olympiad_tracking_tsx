@@ -22,7 +22,7 @@ export default function Landing() {
         const newForm = new FormData(e.currentTarget);
         const urlValue = newForm.get("url") as string;
         try {
-            const response = await fetch("http://localhost:4000/api/call_result", {
+            const response = await fetch("/api/call_result", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -41,12 +41,11 @@ export default function Landing() {
             setLoading(false);
             router.push(`/result`);
         }
-
     }
 
     const [events, setEvents] = useState<Event[]>([]);
     useEffect(() => {
-        fetch("/api/events")
+        fetch("/api/show_events")
         .then((res) => res.json())
         .then((data) => setEvents(data))
         .catch((err) => console.error(err));
