@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from "cors";
-import { ScrapeReturnDict } from './scrape.js'; // Adjust the import path as necessary
+import { ScrapeReturnDict } from 'scrape.js'; // Adjust the import path as necessary
 import pool from '../../lib/db.js';
 
 dotenv.config();

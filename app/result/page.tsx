@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 type ParsedData = {
-  name: string[];
+  name: string;
   url: string;
   dates: any[];
   billing: any[];
@@ -86,7 +86,7 @@ export default function ResultsPage() {
   return (
     <div>
       <div className="name-button">
-        <h4>{data.name[0]}</h4>
+        <h4>{data.name}</h4>
         <h5>{data.url}</h5>
         <button type="button" onClick={handleAddEvent}>
           Add Event

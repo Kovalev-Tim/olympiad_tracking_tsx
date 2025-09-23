@@ -10,9 +10,30 @@ export async function POST(request) {
   try {
     const { dict } = await request.json();
     console.log(dict);
+    console.log(dict.name);
+    console.log("-----------");
+    //create strings instead of arrays. FIX FOR BILLING AND REQUIREMENTS
+    const name = Array.isArray(dict.name) ? dict.name[0] : dict.name;
+    const url = Array.isArray(dict.url) ? dict.url[0] : dict.url;
+    const billing = Array.isArray(dict.billing) ? dict.billing[0] : dict.billing;
+    const requirements = Array.isArray(dict.requirements) ? dict.requirements[0] : dict.requirements;
+    const organizers = Array.isArray(dict.organizers) ? dict.organizers[0] : dict.organizers;
+    const rewards = Array.isArray(dict.rewards) ? dict.rewards[0] : dict.rewards;
+    const result = await pool.query(
+      `SELECT id FROM olympiads WHERE name = $1`,
+      [name]
+    );
 
-    const name = dict.name[0];
-    const url = dict.url;
+    let olympiadId;
+    if (result.rows.length === 0) {
+      const insertOlympiad = await pool.query(
+        `INSERT INTO olympiads (name, fees, requirements, organizers, rewards, url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+        [name, billing, requirements, organizers, rewards, url]
+      );
+      olympiadId = insertOlympiad.rows[0].id;
+    } else {
+      olympiadId = result.rows[0].id;
+    }
 
     for (const i of dict.dates) {
       const [date, action] = i.split(' – ');
@@ -26,8 +47,8 @@ export async function POST(request) {
       }
 
       console.log(date, action);
-      const query = "INSERT INTO events (name, url, action, date_start, date_end) VALUES ($1, $2, $3, $4, $5)";
-      const values = [name, url, action, date_start, date_end];
+      const query = "INSERT INTO olympiad_events (olympiad_id, action, date_start, date_end) VALUES ($1, $2, $3, $4)";
+      const values = [olympiadId, action, date_start, date_end];
       await pool.query(query, values);
     }
 

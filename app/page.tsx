@@ -4,6 +4,7 @@ import React, { use, useEffect, useState } from "react";
 import Calendar from "./components/fullcalendar";
 import LoadingOverlay  from "./components/loading";
 import "./globals.css";
+import UpcomingEvents from "./components/upcoming-events";
 
 
 interface Event {
@@ -53,7 +54,7 @@ export default function Landing() {
 
     return (
         <main className="p-6">
-            <h1 className="text-2xl font-bold">🏆 Olympiad Info Extractor</h1>
+            <h1 className="text-2xl font-bold rounded mb-4">🏆 Olympiad Info Extractor</h1>
             <form id="urlForm" className="mt-4 flex gap-2" onSubmit={handleSubmit}>
                 <input
                     type="text"
@@ -69,7 +70,13 @@ export default function Landing() {
                     Parse
                 </button>
             </form>
-            <Calendar events={events} />
+            {/* Calendar Component */}
+            <div className="flex flex-row items-top mt-30">
+                <Calendar events={events} />
+                {/* Upcoming Events Component */}
+                <UpcomingEvents />
+            </div>
+            {/* Loading Overlay */}
             {loading && <LoadingOverlay />}
         </main>
     );

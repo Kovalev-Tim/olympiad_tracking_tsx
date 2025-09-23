@@ -146,7 +146,7 @@ function transformUrl(url) {
     return url;
 }
 
-async function ScrapeReturnDict(url) {
+export async function ScrapeReturnDict(url) {
     url = transformUrl(url);
 
     const browser = await puppeteer.launch({
@@ -175,7 +175,7 @@ async function ScrapeReturnDict(url) {
     console.log(`Total chunks: ${chunks.length}`);
     const parsed = await processAllChunks(chunks);
     return {
-        name: parsed["name"] || [],
+        name: parsed["name"][0] || [],
         dates: parsed["dates"] || [],
         billing: parsed["billing or entry fees"] || [],
         requirements: parsed["participation requirements"] || [],
