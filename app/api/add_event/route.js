@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { auth } from "@clerk/nextjs/server";
 import pool from '@/lib/db';
 
 const to_timestamp = (date) => {
@@ -8,6 +9,10 @@ const to_timestamp = (date) => {
 
 export async function POST(request) {
   try {
+    const { userId } = auth(); // userId via Clerk Auth
+    if (!userId) {
+      return new Response("Unauthorized", { status: 401 });
+    }
     const { dict } = await request.json();
     console.log(dict);
     console.log(dict.name);
@@ -47,9 +52,14 @@ export async function POST(request) {
       }
 
       console.log(date, action);
-      const query = "INSERT INTO olympiad_events (olympiad_id, action, date_start, date_end) VALUES ($1, $2, $3, $4)";
+      const query = "INSERT INTO olympiad_events (olympiad_id, action, date_start, date_end) VALUES ($1, $2, $3, $4) RETURNING id";
       const values = [olympiadId, action, date_start, date_end];
-      await pool.query(query, values);
+      const AddResult = await pool.query(query, values);
+      await pool.query(
+        `INSERT INTO event_access (user_id, event_id, role) VALUES ($1, $2, 'admin')
+         ON CONFLICT DO NOTHING`,
+        [userId, AddResult.rows[0].id]
+      );
     }
 
     console.log('Events added successfully');

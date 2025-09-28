@@ -184,5 +184,3 @@ export async function ScrapeReturnDict(url) {
         url: url || "",
     };
 }
-
-export { ScrapeReturnDict };

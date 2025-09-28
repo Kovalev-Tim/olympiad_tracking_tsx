@@ -54,7 +54,6 @@ export default function Landing() {
 
     return (
         <main className="p-6">
-            <h1 className="text-2xl font-bold rounded mb-4">🏆 Olympiad Info Extractor</h1>
             <form id="urlForm" className="mt-4 flex gap-2" onSubmit={handleSubmit}>
                 <input
                     type="text"
