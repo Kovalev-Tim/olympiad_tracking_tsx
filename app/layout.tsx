@@ -9,6 +9,7 @@ import {
   UserButton,
 } from '@clerk/nextjs'
 import "./globals.css";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

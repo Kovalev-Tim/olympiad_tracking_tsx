@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { ScrapeReturnDict } from '../../backend/scrape';
-import pool from '@/lib/db';
 
 export async function POST(request) {
   try {

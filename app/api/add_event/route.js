@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getAuth } from "@clerk/nextjs/server";
 import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const supabaseUrl = process.env.SUPABASE_DIRECT_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
