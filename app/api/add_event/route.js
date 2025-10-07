@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
-import { auth } from "@clerk/nextjs/server";
+import { getAuth } from "@clerk/nextjs/server";
+import { createClient } from '@supabase/supabase-js'
 import pool from '@/lib/db';
+
+const supabaseUrl = 'https://hiovspodxpbatwgvscrq.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 const to_timestamp = (date) => {
   const [dd, mm, yyyy] = date.split('-');
@@ -9,7 +14,7 @@ const to_timestamp = (date) => {
 
 export async function POST(request) {
   try {
-    const { userId } = auth(); // userId via Clerk Auth
+    const { userId } = getAuth(); // userId via Clerk Auth
     if (!userId) {
       return new Response("Unauthorized", { status: 401 });
     }

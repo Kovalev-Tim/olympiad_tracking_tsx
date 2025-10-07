@@ -7,7 +7,6 @@ export async function GET() {
             `SELECT a.id, a.olympiad_id, o.name, a.action, a.date_start, a.date_end
             FROM olympiad_events a
             JOIN olympiads o ON a.olympiad_id = o.id
-            WHERE a.date_end >= NOW()
             ORDER BY a.date_start ASC
             LIMIT 5`
         );
@@ -25,7 +24,7 @@ export async function GET() {
     } catch (err) {
         console.error("Error fetching upcoming events:", err);
         return NextResponse.json(
-              { error: "Failed to fetch  upcoming events" },
+              { error: "Failed to fetch upcoming events" },
               { status: 500 }
             );
     }

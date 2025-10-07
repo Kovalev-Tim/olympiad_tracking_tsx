@@ -19,9 +19,20 @@ export default function UpcomingEvents() {
 
     useEffect(() => {
         fetch("/api/upcoming")
-            .then((res) => res.json())
+            .then(async (res) => {
+              const data = await res.json();
+              // Checking if the data is an array
+              if (!Array.isArray(data)) {
+                console.error("Unexpected data format from /api/upcoming:", data);
+                return [];
+              }
+              return data;
+            })
             .then((data) => setEvents(data))
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.error("Error fetching upcoming events:", err);
+                setEvents([]); // fallback to empty array to prevent .map errors
+            });
     }, []);
 
     if (upcoming_events.length === 0) {
@@ -29,14 +40,14 @@ export default function UpcomingEvents() {
         return (
             <div className="max-w-3xl h-auto mx-auto mt-10 ml-15 flex flex-col items-center
                 bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-                <p className="text-center text-gray-500">There are no upcoming upcoming events</p>
+                <p className="text-center text-gray-500">There are no upcoming events</p>
             </div>
         );
     }
     return (
         <div className="max-w-3xl h-auto mx-auto mt-10 ml-15 flex flex-col items-center
                 bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-            <h2 className="text-2xl font-semibold mb-4">Upcoming upcoming_events</h2>
+            <h2 className="text-2xl font-semibold mb-4">Upcoming events</h2>
             <ul className="space-y-4">
                 {upcoming_events.map((event) => (
                     <li key={`${event.id}-${event.olympiad_id}`} className="mb-4 p-4 border rounded-lg shadow-sm bg-white hover:shadow-md transition duration-300">
