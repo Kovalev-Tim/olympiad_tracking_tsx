@@ -1,84 +1,111 @@
 import { NextResponse } from 'next/server';
 import { getAuth } from "@clerk/nextjs/server";
-import { createClient } from '@supabase/supabase-js'
-import pool from '@/lib/db';
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://hiovspodxpbatwgvscrq.supabase.co'
-const supabaseKey = process.env.SUPABASE_KEY
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = process.env.SUPABASE_DIRECT_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-const to_timestamp = (date) => {
+// Convert date from dd-mm-yyyy to yyyy-mm-dd
+const toTimestamp = (date) => {
   const [dd, mm, yyyy] = date.split('-');
   return `${yyyy}-${mm}-${dd}`;
 };
 
 export async function POST(request) {
   try {
-    const { userId } = getAuth(); // userId via Clerk Auth
+    const { userId } = getAuth();
     if (!userId) {
       return new Response("Unauthorized", { status: 401 });
     }
+
     const { dict } = await request.json();
-    console.log(dict);
-    console.log(dict.name);
-    console.log("-----------");
-    //create strings instead of arrays. FIX FOR BILLING AND REQUIREMENTS
+
+    // Fix arrays → strings
     const name = Array.isArray(dict.name) ? dict.name[0] : dict.name;
     const url = Array.isArray(dict.url) ? dict.url[0] : dict.url;
     const billing = Array.isArray(dict.billing) ? dict.billing[0] : dict.billing;
     const requirements = Array.isArray(dict.requirements) ? dict.requirements[0] : dict.requirements;
     const organizers = Array.isArray(dict.organizers) ? dict.organizers[0] : dict.organizers;
     const rewards = Array.isArray(dict.rewards) ? dict.rewards[0] : dict.rewards;
-    const result = await pool.query(
-      `SELECT id FROM olympiads WHERE name = $1`,
-      [name]
-    );
+
+    // Check if olympiad exists
+    let { data: olympiads, error: selectError } = await supabase
+      .from('olympiads')
+      .select('id')
+      .eq('name', name)
+      .limit(1);
+
+    if (selectError) throw selectError;
 
     let olympiadId;
-    if (result.rows.length === 0) {
-      const insertOlympiad = await pool.query(
-        `INSERT INTO olympiads (name, fees, requirements, organizers, rewards, url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-        [name, billing, requirements, organizers, rewards, url]
-      );
-      olympiadId = insertOlympiad.rows[0].id;
+
+    if (olympiads.length === 0) {
+      // Insert new olympiad
+      const { data: insertedOlympiad, error: insertError } = await supabase
+        .from('olympiads')
+        .insert({
+          name,
+          fees: billing,
+          requirements,
+          organizers,
+          rewards,
+          url
+        })
+        .select('id')
+        .single();
+
+      if (insertError) throw insertError;
+      olympiadId = insertedOlympiad.id;
     } else {
-      olympiadId = result.rows[0].id;
+      olympiadId = olympiads[0].id;
     }
 
+    // Insert events
     for (const i of dict.dates) {
-      const [date, action] = i.split(' – ');
-      let date_start = to_timestamp(date);
-      let date_end = to_timestamp(date);
+      const [dateStr, action] = i.split(' – ');
 
-      const parsed = date.split(' to ');
+      let dateStart = toTimestamp(dateStr);
+      let dateEnd = toTimestamp(dateStr);
+
+      const parsed = dateStr.split(' to ');
       if (parsed.length === 2) {
-        date_start = to_timestamp(parsed[0]);
-        date_end = to_timestamp(parsed[1]);
+        dateStart = toTimestamp(parsed[0]);
+        dateEnd = toTimestamp(parsed[1]);
       }
 
-      console.log(date, action);
-      const query = "INSERT INTO olympiad_events (olympiad_id, action, date_start, date_end) VALUES ($1, $2, $3, $4) RETURNING id";
-      const values = [olympiadId, action, date_start, date_end];
-      const AddResult = await pool.query(query, values);
-      await pool.query(
-        `INSERT INTO event_access (user_id, event_id, role) VALUES ($1, $2, 'admin')
-         ON CONFLICT DO NOTHING`,
-        [userId, AddResult.rows[0].id]
-      );
+      // Insert event
+      const { data: event, error: eventError } = await supabase
+        .from('olympiad_events')
+        .insert({
+          olympiad_id: olympiadId,
+          action,
+          date_start: dateStart,
+          date_end: dateEnd
+        })
+        .select('id')
+        .single();
+
+      if (eventError) {
+        if (eventError.code === '23505') continue; // unique violation → skip
+        throw eventError;
+      }
+
+      // Give user admin access
+      await supabase
+        .from('event_access')
+        .upsert({
+          user_id: userId,
+          event_id: event.id,
+          role: 'admin'
+        });
     }
 
-    console.log('Events added successfully');
     return NextResponse.json({ success: 'Event added successfully' });
   } catch (error) {
-    if (error.code === '23505') {
-      return NextResponse.json(
-        { exists: 'Event already exists' },
-        { status: 409 }
-      );
-    }
     console.error('Failed to add event:', error);
     return NextResponse.json(
-      { error: 'Failed to add event' },
+      { error: 'Failed to add event', details: error.message },
       { status: 500 }
     );
   }
