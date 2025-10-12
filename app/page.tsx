@@ -18,6 +18,7 @@ export default function Landing() {
     const [loading, setLoading] = useState(false);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        console.log("clicked!");
         e.preventDefault();
         setLoading(true);
         const newForm = new FormData(e.currentTarget);

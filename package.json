@@ -14,6 +14,7 @@
     "@fullcalendar/daygrid": "^6.1.19",
     "@fullcalendar/interaction": "^6.1.19",
     "@fullcalendar/react": "^6.1.19",
+    "@sparticuz/chromium": "^106.0.2",
     "@supabase/supabase-js": "^2.58.0",
     "@vercel/speed-insights": "^1.2.0",
     "class-variance-authority": "^0.7.1",
@@ -27,7 +28,8 @@
     "openai": "^5.12.2",
     "pg": "^8.16.3",
     "postgres": "^3.4.7",
-    "puppeteer": "^24.16.1",
+    "puppeteer": "^24.24.0",
+    "puppeteer-core": "^24.24.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "tailwind-merge": "^3.3.1"

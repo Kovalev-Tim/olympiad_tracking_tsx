@@ -1,9 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
-
-import puppeteer from "puppeteer";
 import OpenAI from "openai";
-import { constrainedMemory } from "process";
+import puppeteer from "puppeteer";
+import * as chromium from "@sparticuz/chromium";
 
 
 const systemPrompt = `You are an intelligent extraction assistant designed to analyze and summarize academic competition webpages.
@@ -95,7 +94,7 @@ async function extractFromChunk(chunkText) {
   ];
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",  // or a bigger model if you want more tokens
+    model: "gpt-4o",  // or a bigger model if you want more tokens
     messages,
     temperature: 0.5,
   });
@@ -140,47 +139,61 @@ function parseSections(rawText) {
 }
 
 function transformUrl(url) {
-    if (!url.startsWith("http")) {
-        url = "https://www." + url;
+  try {
+    if (!/^https?:\/\//i.test(url)) {
+      url = "https://" + url;
     }
-    return url;
+    return new URL(url).toString();
+  } catch {
+    throw new Error("Invalid URL");
+  }
 }
 
 export async function ScrapeReturnDict(url) {
-    url = transformUrl(url);
+    let browser;
+    try {
+        const executablePath = await chromium.executablePath;
+        browser = await puppeteer.launch({
+          args: chromium.args,
+          defaultViewport: chromium.defaultViewport,
+          executablePath,
+          headless: chromium.headless,
+        });
+        url = transformUrl(url);
+        const page = await browser.newPage();
+        await page.goto(url, { waitUntil: "networkidle2" });
 
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "networkidle2" });
+        const text = await page.evaluate(() => {
+            // Get all text content from the body
+            let rawText = document.body.innerText;
 
-    const text = await page.evaluate(() => {
-        // Get all text content from the body
-        let rawText = document.body.innerText;
+            // Remove zero-width spaces & trim
+            return rawText
+              .replace(/\u200b/g, "")    // zero-width spaces
+              .replace(/\u00a0/g, " ")   // non-breaking spaces
+              .replace(/\s+/g, " ")      // collapse multiple spaces
+              .trim();
+        });
+        await browser.close();
 
-        // Remove zero-width spaces & trim
-        return rawText
-          .replace(/\u200b/g, "")    // zero-width spaces
-          .replace(/\u00a0/g, " ")   // non-breaking spaces
-          .replace(/\s+/g, " ")      // collapse multiple spaces
-          .trim();
-    });
-    await browser.close();
+        // Prepare OpenAI client
 
-    // Prepare OpenAI client
-
-    const chunks = chunkText(text, 6000);
-    console.log(`Total chunks: ${chunks.length}`);
-    const parsed = await processAllChunks(chunks);
-    return {
-        name: parsed["name"][0] || [],
-        dates: parsed["dates"] || [],
-        billing: parsed["billing or entry fees"] || [],
-        requirements: parsed["participation requirements"] || [],
-        organizers: parsed["organizers"] || [],
-        rewards: parsed["rewards for winners"] || [],
-        url: url || "",
-    };
+        const chunks = chunkText(text, 6000);
+        console.log(`Total chunks: ${chunks.length}`);
+        const parsed = await processAllChunks(chunks);
+        return {
+            name: parsed["name"][0] || [],
+            dates: parsed["dates"] || [],
+            billing: parsed["billing or entry fees"] || [],
+            requirements: parsed["participation requirements"] || [],
+            organizers: parsed["organizers"] || [],
+            rewards: parsed["rewards for winners"] || [],
+            url: url || "",
+        };
+    } catch (error) {
+        console.error(error);
+        throw error;
+    } finally {
+        if (browser) await browser.close();
+    }
 }

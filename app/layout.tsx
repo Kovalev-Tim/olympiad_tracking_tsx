@@ -31,6 +31,7 @@ export default function RootLayout({ children, }: Readonly<{children: React.Reac
     <ClerkProvider>
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <SpeedInsights/>
           <header className="p-4 h-20 relative">
             {/* Title */}
             <h1 className="text-2xl font-bold rounded text-center w-full">
