@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import OpenAI from "openai";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 import * as chromium from "@sparticuz/chromium";
 
 
