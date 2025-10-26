@@ -1,4 +1,4 @@
-import chromium from "@sparticuz/chromium";
+import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 import { executablePath } from "puppeteer-core";
 
@@ -41,4 +41,4 @@ export async function handler(event) {
   }
 }
 
-handler({ url: "https://example.com" });
+console.log("Executable path:", await chromium.executablePath("https://github.com/Sparticuz/chromium/releases/download/v141.0.0/chromium-v141.0.0-pack.x64.tar"));

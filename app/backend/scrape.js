@@ -154,7 +154,7 @@ function transformUrl(url) {
 export async function ScrapeReturnDict(url) {
   let browser;
   try {
-      const executablePath = await chromium.executablePath('https://github.com/Sparticuz/chromium/releases/download/v141.0.0/chromium-v141.0.0-pack.tar');
+      const executablePath = await chromium.executablePath();
       browser = await puppeteerCore.launch({
           executablePath,
           // You can pass other configs as required
