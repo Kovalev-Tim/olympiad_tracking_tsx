@@ -8,11 +8,12 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 
-export async function GET() {
+export async function GET(req) {
   try {
-    const { userId } = getAuth();
+    let userId;
+    userId = getAuth(req);
     if (!userId) {
-      return new Response("Unauthorized", { status: 401 });
+      userId = process.env.BASE_USER_ID;
     }
     // Fetch upcoming events with olympiad names
     const { data, error } = await supabase

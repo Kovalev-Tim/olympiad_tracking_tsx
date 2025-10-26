@@ -1,8 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 import OpenAI from "openai";
-import puppeteer from "puppeteer-core";
-import * as chromium from "@sparticuz/chromium";
+import { NextResponse } from "next/server";
+import puppeteerCore from "puppeteer-core";
+import chromium from "@sparticuz/chromium-min";
+
 
 
 const systemPrompt = `You are an intelligent extraction assistant designed to analyze and summarize academic competition webpages.
@@ -150,50 +152,49 @@ function transformUrl(url) {
 }
 
 export async function ScrapeReturnDict(url) {
-    let browser;
-    try {
-        const executablePath = await chromium.executablePath;
-        browser = await puppeteer.launch({
-          args: chromium.args,
-          defaultViewport: chromium.defaultViewport,
+  let browser;
+  try {
+      const executablePath = await chromium.executablePath('https://github.com/Sparticuz/chromium/releases/download/v141.0.0/chromium-v141.0.0-pack.tar');
+      browser = await puppeteerCore.launch({
           executablePath,
+          // You can pass other configs as required
+          args: chromium.args,
           headless: chromium.headless,
-        });
-        url = transformUrl(url);
-        const page = await browser.newPage();
-        await page.goto(url, { waitUntil: "networkidle2" });
+          defaultViewport: chromium.defaultViewport
+      });
+      url = transformUrl(url);
 
-        const text = await page.evaluate(() => {
-            // Get all text content from the body
-            let rawText = document.body.innerText;
+      const page = await browser.newPage();
+      await page.goto(url);
 
-            // Remove zero-width spaces & trim
-            return rawText
-              .replace(/\u200b/g, "")    // zero-width spaces
-              .replace(/\u00a0/g, " ")   // non-breaking spaces
-              .replace(/\s+/g, " ")      // collapse multiple spaces
-              .trim();
-        });
-        await browser.close();
+      const text = await page.evaluate(() => {
+        return document.body.innerText
+          .replace(/\u200b/g, "")
+          .replace(/\u00a0/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+      });
+      await browser.close();
 
-        // Prepare OpenAI client
-
-        const chunks = chunkText(text, 6000);
-        console.log(`Total chunks: ${chunks.length}`);
-        const parsed = await processAllChunks(chunks);
-        return {
-            name: parsed["name"][0] || [],
-            dates: parsed["dates"] || [],
-            billing: parsed["billing or entry fees"] || [],
-            requirements: parsed["participation requirements"] || [],
-            organizers: parsed["organizers"] || [],
-            rewards: parsed["rewards for winners"] || [],
-            url: url || "",
-        };
-    } catch (error) {
-        console.error(error);
-        throw error;
-    } finally {
-        if (browser) await browser.close();
+      // Prepare OpenAI client
+      const chunks = chunkText(text, 6000);
+      console.log(`Total chunks: ${chunks.length}`);
+      const parsed = await processAllChunks(chunks);
+      return {
+          name: parsed["name"][0] || [],
+          dates: parsed["dates"] || [],
+          billing: parsed["billing or entry fees"] || [],
+          requirements: parsed["participation requirements"] || [],
+          organizers: parsed["organizers"] || [],
+          rewards: parsed["rewards for winners"] || [],
+          url: url || "",
+      };
+  } catch (error) {
+      console.error(error);
+      throw error;
+  } finally {
+    if (browser) {
+      await browser.close();
     }
+  }
 }

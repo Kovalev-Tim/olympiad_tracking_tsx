@@ -13,14 +13,14 @@ const toTimestamp = (date) => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-export async function POST(request) {
+export async function POST(req) {
   try {
-    const { userId } = getAuth();
+    const { userId } = getAuth(req);
     if (!userId) {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    const { dict } = await request.json();
+    const { dict } = await req.json();
 
     // Fix arrays → strings
     const name = Array.isArray(dict.name) ? dict.name[0] : dict.name;

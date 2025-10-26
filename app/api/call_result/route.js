@@ -4,6 +4,7 @@ import { ScrapeReturnDict } from '../../backend/scrape';
 export async function POST(request) {
   try {
     const { url } = await request.json();
+    console.log("Scraping URL:", url);
     const result = await ScrapeReturnDict(url);
 
     for (const key in result) {
