@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/**/*.js": {
+    "app/api/**/*.js": {
       "runtime": "nodejs20.x",
       "memory": 2048,
       "includeFiles": "node_modules/playwright/**"
