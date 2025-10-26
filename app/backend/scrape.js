@@ -1,10 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import OpenAI from "openai";
-import { NextResponse } from "next/server";
-import puppeteerCore from "puppeteer-core";
-import chromium from "@sparticuz/chromium-min";
-
+import { chromium } from "playwright";
 
 
 const systemPrompt = `You are an intelligent extraction assistant designed to analyze and summarize academic competition webpages.
@@ -154,16 +151,10 @@ function transformUrl(url) {
 export async function ScrapeReturnDict(url) {
   let browser;
   try {
-      const executablePath = await chromium.executablePath();
-      browser = await puppeteerCore.launch({
-          executablePath,
-          // You can pass other configs as required
-          args: chromium.args,
-          headless: chromium.headless,
-          defaultViewport: chromium.defaultViewport
-      });
+      browser = await chromium.connectOverCDP(`wss://production-sfo.browserless.io?token=${process.env.BROWSERLESS_TOKEN}`);
       url = transformUrl(url);
 
+      const context = await browser.newContext();
       const page = await browser.newPage();
       await page.goto(url);
 
