@@ -10,6 +10,7 @@ import {
 } from '@clerk/nextjs'
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,6 +58,7 @@ export default function RootLayout({ children, }: Readonly<{children: React.Reac
             </div>
           </header>
           {children}
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
