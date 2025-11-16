@@ -1,4 +1,3 @@
-// app/head.js
 export default function Head() {
   const title = "Olympiad Tracker — Competition calendar & parser";
   const description = "Parse academic competition pages, extract dates & details, and add events to your calendar.";
