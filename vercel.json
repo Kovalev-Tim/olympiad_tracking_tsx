@@ -1,7 +1,6 @@
 {
   "functions": {
     "app/api/**/*.js": {
-      "memory": 2048,
       "includeFiles": "node_modules/playwright/**"
     }
   }
