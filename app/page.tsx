@@ -72,9 +72,9 @@ export default function Landing() {
             </form>
             {/* Calendar Component */}
             <div className="flex flex-row items-top mt-30">
-                <Calendar events={events} />
+                {!loading && <Calendar events={events} />}
                 {/* Upcoming Events Component */}
-                <UpcomingEvents />
+                {!loading && <UpcomingEvents />}
             </div>
             {/* Loading Overlay */}
             {loading && <LoadingOverlay />}

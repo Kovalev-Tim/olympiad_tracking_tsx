@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAuth } from "@clerk/nextjs/server";
 import { createClient } from '@supabase/supabase-js';
+import { use } from 'react';
 
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -98,7 +99,7 @@ export async function POST(req) {
         .upsert({
           user_id: userId,
           event_id: event.id,
-          role: 'admin'
+          role: (userId === process.env.BASE_USER_ID) ? 'admin' : 'viewer'
         });
     }
 
