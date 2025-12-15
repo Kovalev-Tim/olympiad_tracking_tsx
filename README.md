@@ -41,14 +41,14 @@ Minimal and intuitive interface (TailwindCSS).
 
 ## Tech Stack
 
-| Component - Technology |
-|----------|------------|
-| Frontend - Next.js 13/14 App Router |
-| Backend - Node.js API Routes |
-| Scraping - Playwright |
-| AI Extraction - OpenAI API (GPT-4o or o3 models) |
-| CSS - TailwindCSS |
-| Hosting - Vercel |
+| Component       | Technology                       |
+|-----------------|----------------------------------|
+| Frontend        | Next.js 13/14 App Router         |
+| Backend         | Node.js API Routes               |
+| Scraping        | Playwright                       |
+| AI Extraction   | OpenAI API (GPT-4o or o3 models) |
+| CSS             | TailwindCSS                      |
+| Hosting         | Vercel                           |
 
 ---
 
