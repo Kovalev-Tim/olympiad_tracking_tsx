@@ -28,6 +28,8 @@ Use this exact JSON schema:
 }
 
 Rules:
+- ALWAYS answer in English.
+- DO NOT use any other languages.
 - If a section is not mentioned, return an empty array (or empty string for name).
 - Convert all dates to dd-mm-yyyy.
 - If only month/year is available, use day = 01.
