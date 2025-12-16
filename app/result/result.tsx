@@ -83,6 +83,8 @@ export default function ResultsPage() {
     return <p>Error loading data. Please try again.</p>;
   }
 
+  data.dates = data.dates.map(d => `${d.date} - ${d.description}`);
+
   return (
     <div>
       <div className="name-button">
