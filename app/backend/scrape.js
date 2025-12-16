@@ -16,7 +16,8 @@ Use this exact JSON schema:
   "name": string,
   "dates": [
     {
-      "date": "dd-mm-yyyy",
+      "dateStart": "dd-mm-yyyy",
+      "dateEnd": "dd-mm-yyyy",
       "description": string
     }
   ],
@@ -76,9 +77,9 @@ async function extractFromChunk(chunkText) {
   ];
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",  // or a bigger model if you want more tokens
+    model: "gpt-4o",  // or a bigger model if you want more tokens
     messages,
-    temperature: 0.3,
+    temperature: 0.2,
   });
 
   return JSON.parse(response.choices[0].message.content);

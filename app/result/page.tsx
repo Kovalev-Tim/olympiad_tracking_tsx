@@ -83,7 +83,7 @@ export default function ResultsPage() {
     return <p>Error loading data. Please try again.</p>;
   }
 
-  data.dates = data.dates.map(d => `${d.date} - ${d.description}`);
+  const displayDates = Array.isArray(data.dates) ? data.dates.map(d => `${d.dateStart} to ${d.dateEnd} – ${d.description}`) : [];
 
   return (
     <div>
@@ -97,7 +97,7 @@ export default function ResultsPage() {
 
       <div className="box">
         <h2>📅 Dates</h2>
-        {buildList(data.dates)}
+        {buildList(displayDates)}
       </div>
       <div className="box">
         <h2>💳 Billing</h2>

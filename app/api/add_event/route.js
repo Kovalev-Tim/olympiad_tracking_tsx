@@ -65,16 +65,9 @@ export async function POST(req) {
 
     // Insert events
     for (const i of dict.dates) {
-      const [dateStr, action] = i.split(' – ');
-
-      let dateStart = toTimestamp(dateStr);
-      let dateEnd = toTimestamp(dateStr);
-
-      const parsed = dateStr.split(' to ');
-      if (parsed.length === 2) {
-        dateStart = toTimestamp(parsed[0]);
-        dateEnd = toTimestamp(parsed[1]);
-      }
+      const dateStart = i.dateStart;
+      const dateEnd = i.dateEnd;
+      const action = i.description;
 
       // Insert event
       const { data: event, error: eventError } = await supabase
