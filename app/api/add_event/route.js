@@ -65,8 +65,8 @@ export async function POST(req) {
 
     // Insert events
     for (const i of dict.dates) {
-      const dateStart = i.dateStart;
-      const dateEnd = i.dateEnd;
+      const dateStart = toTimestamp(i.dateStart);
+      const dateEnd = toTimestamp(i.dateEnd);
       const action = i.description;
 
       // Insert event
