@@ -9,11 +9,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function GET(req) {
   try {
-    let userId;
-    userId = getAuth(req);
-    if (!userId) {
-      userId = process.env.BASE_USER_ID;
-    }
+    const { userId: authenticatedUserId } = getAuth(req);
+    const userId = authenticatedUserId ?? process.env.BASE_USER_ID;
 
     // Fetch events where user has access
     const { data: eventsData, error } = await supabase

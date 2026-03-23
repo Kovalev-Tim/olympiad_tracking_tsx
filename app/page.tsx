@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Calendar from "./components/fullcalendar";
 import LoadingOverlay  from "./components/loading";
 import "./globals.css";
@@ -48,10 +48,10 @@ export default function Landing() {
     const [events, setEvents] = useState<Event[]>([]);
     useEffect(() => {
         fetch("/api/show_events")
-        .then((res) => res.json())
-        .then((data) => setEvents(data))
-        .catch((err) => console.error(err));
-    })
+            .then((res) => res.json())
+            .then((data) => setEvents(data))
+            .catch((err) => console.error(err));
+    }, []);
 
     return (
         <main className="p-6">
