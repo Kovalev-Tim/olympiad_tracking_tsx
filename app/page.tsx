@@ -55,21 +55,24 @@ export default function Landing() {
 
     return (
         <main className="p-6">
-            <form id="urlForm" className="mt-4 flex gap-2" onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    id="url_bar"
-                    name="url"
-                    placeholder="Enter Olympiad URL"
-                    className="border p-2 rounded w-full"
-                />
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                    Parse
-                </button>
-            </form>
+            <div className="text-center mt-10 flex justify-center items-baseline gap-3">
+                <form id="urlForm" className="mt-4 flex gap-3" onSubmit={handleSubmit}>
+                    <input
+                        type="text"
+                        id="url_bar"
+                        name="url"
+                        placeholder="Enter Olympiad URL"
+                        className="border p-2 rounded w-full"
+                    />
+                    <button
+                        type="submit"
+                        className="golden-button"
+                    >
+                        Parse
+                    </button>
+                </form>
+                <button type="button" className="golden-button" onClick={() => router.push("/manage")}> Manage Events </button>
+            </div>
             {/* Calendar Component */}
             <div className="flex flex-row items-top mt-30">
                 {!loading && <Calendar events={events} />}

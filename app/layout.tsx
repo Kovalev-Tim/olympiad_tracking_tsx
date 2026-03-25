@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import {
   ClerkProvider,
   SignInButton,
@@ -78,6 +79,12 @@ export default function RootLayout({ children, }: Readonly<{children: React.Reac
                 </SignUpButton>
               </SignedOut>
               <SignedIn>
+                <Link
+                  href="/manage"
+                  className="rounded-full border border-[#6c47ff] px-4 py-2 text-sm font-medium text-[#6c47ff] transition hover:bg-[#f2edff]"
+                >
+                  Manage Events
+                </Link>
                 <UserButton />
               </SignedIn>
             </div>
