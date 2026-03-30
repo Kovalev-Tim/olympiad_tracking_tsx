@@ -27,10 +27,10 @@ export default function ResultsPage() {
     if (!items || items.length === 0) return <p>Not specified</p>;
 
     return (
-      <ul>
+      <ul className="list-disc list-inside space-y-2 text-gray-700">
         {items.map((item, i) =>
           typeof item === "string" ? (
-            <li key={i}>{item}</li>
+            <li className="text-gray-700 font-semibold" key={i}>{item}</li>
           ) : (
             <li key={i}>
               {item.main}
@@ -87,32 +87,43 @@ export default function ResultsPage() {
 
   return (
     <div>
-      <div className="name-button">
-        <h4>{data.name}</h4>
-        <h5>{data.url}</h5>
-        <button type="button" onClick={handleAddEvent}>
+      <div className="name-button flex-row justify-between">
+        <div className="display-flex, flex-col">
+          <h4 className="text-lg font-semibold text-slate-900">{data.name}</h4>
+          <h5>
+            <a
+              href={data.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm text-blue-600 hover:underline dark:text-blue-500"
+            >
+              {data.url}
+            </a>
+          </h5>
+        </div>
+        <button type="button" className="rounded-lg bg-slate-800 px-4 py-2 m-3 text-sm font-semibold text-white hover:bg-slate-600 hover:px-4.5 hover:py-3 duration-300 ease-in-out" onClick={handleAddEvent}>
           Add Event
         </button>
       </div>
 
       <div className="box">
-        <h2>📅 Dates</h2>
+        <h2> Dates</h2>
         {buildList(displayDates)}
       </div>
       <div className="box">
-        <h2>💳 Billing</h2>
+        <h2> Billing</h2>
         {buildList(data.billing)}
       </div>
       <div className="box">
-        <h2>📋 Requirements</h2>
+        <h2> Requirements</h2>
         {buildList(data.requirements)}
       </div>
       <div className="box">
-        <h2>👥 Organizers</h2>
+        <h2> Organizers</h2>
         {buildList(data.organizers)}
       </div>
       <div className="box">
-        <h2>🏅 Rewards</h2>
+        <h2> Rewards</h2>
         {buildList(data.rewards)}
       </div>
     </div>
