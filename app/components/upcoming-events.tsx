@@ -1,8 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
-
-
+import { useState, useEffect, useRef } from "react";
 
 interface Event {
     id: number;
@@ -14,11 +12,11 @@ interface Event {
 }
 
 
-export default function UpcomingEvents() {
+export default function UpcomingEvents({ limit }: { limit: number }) {
     const [upcoming_events, setEvents] = useState<Event[]>([]);
 
     useEffect(() => {
-        fetch("/api/upcoming")
+        fetch(`/api/upcoming?limit=${limit}`)
             .then(async (res) => {
               const data = await res.json();
               // Checking if the data is an array
@@ -33,7 +31,7 @@ export default function UpcomingEvents() {
                 console.error("Error fetching upcoming events:", err);
                 setEvents([]); // fallback to empty array to prevent .map errors
             });
-    }, []);
+    }, [limit]);
 
     if (upcoming_events.length === 0) {
 
@@ -45,7 +43,7 @@ export default function UpcomingEvents() {
         );
     }
     return (
-        <div className="max-w-3xl h-auto mx-auto mt-10 ml-15 flex flex-col items-center
+        <div className="max-w-3xl h-auto mx-auto flex flex-col items-center
                 bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
             <h2 className="text-2xl font-semibold mb-4">Upcoming events</h2>
             <ul className="space-y-4">

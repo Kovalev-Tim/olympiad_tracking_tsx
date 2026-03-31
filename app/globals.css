@@ -59,7 +59,10 @@ body {
 /* Header */
 h1 {
   background-color: #001f3f;
-  color: #ffd700;
+  border-radius: 12px;
+  font-weight: bold;
+  font-family: "Geist Sans", sans-serif;
+  color: #ffffff;
   padding: 20px;
   text-align: center;
   margin: 0;

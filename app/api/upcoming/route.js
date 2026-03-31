@@ -15,6 +15,8 @@ export async function GET(req) {
     if (!userId) {
       userId = process.env.BASE_USER_ID;
     }
+    const { searchParams } = new URL(req.url);
+    const limit = Number(searchParams.get("limit")) || 5;
     // Fetch upcoming events with olympiad names
     const { data, error } = await supabase
       .from("olympiad_events")
@@ -28,7 +30,7 @@ export async function GET(req) {
       `)
       .gte("date_end", new Date().toISOString()) // a.date_end >= NOW()
       .order("date_start", { ascending: true })
-      .limit(5);
+      .limit(limit);
 
     if (error) throw error;
 
