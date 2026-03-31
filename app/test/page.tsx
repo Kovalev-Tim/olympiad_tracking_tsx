@@ -51,7 +51,7 @@ export default function Intro() {
                   <p className="text-gray-600 mb-2">
                     Get a quick list of the next competitions with deadlines.
                   </p>
-                  <UpcomingEvents/>
+                  <UpcomingEvents limit={5} />
                 </div>
                 {/* Notifications Demo */}
                 <div className="border rounded p-4 shadow hover:shadow-lg transition">
