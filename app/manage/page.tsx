@@ -234,7 +234,7 @@ export default function ManageEventsPage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] width-full">
-        <form className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex-col align-normal gap-3px" onSubmit={handleSubmit}>
+        <form className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex-col align-normal justify-start gap-3px" onSubmit={handleSubmit}>
           <div className="flex items-center justify-between gap-4">
             <div>
               <h3 className="text-xl font-semibold text-slate-900">{isEditing ? "Edit event" : "Create event"}</h3>

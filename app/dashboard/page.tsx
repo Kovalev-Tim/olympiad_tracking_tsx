@@ -72,6 +72,7 @@ export default function Dashboard() {
                     </button>
                 </form>
                 <button type="button" className="golden-button" onClick={() => router.push("/manage")}> Manage Events </button>
+                <button type="button" className="golden-button" onClick={() => router.push("/my_olympiads")}> My Olympiads </button>
             </div>
             {/* Calendar Component */}
             <div className="flex flex-row items-top mt-30 gap-10">
