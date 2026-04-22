@@ -52,7 +52,7 @@ export async function GET(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const [{ data: eventAccess, error: eventsError }] = supabase
+    const [{ data: eventAccess, error: eventsError }] = await Promise.all([supabase
         .from('event_access')
         .select(`
           event_id,
@@ -67,14 +67,10 @@ export async function GET(req) {
           )
         `)
         .eq('user_id', userId)
-        .order('event_id', { ascending: true });
+        .order('event_id', { ascending: true })]);
 
     if (eventsError) {
       throw eventsError;
-    }
-
-    if (olympiadsError) {
-      throw olympiadsError;
     }
 
     const events = eventAccess.map((entry) => ({
@@ -87,6 +83,19 @@ export async function GET(req) {
       end: entry.olympiad_events.date_end,
       role: entry.role,
     }));
+
+    const olympiadMap = new Map();
+    for (const entry of eventAccess) {
+      const olympiad = entry.olympiad_events.olympiads;
+      if (!olympiadMap.has(olympiad.id)) {
+        olympiadMap.set(olympiad.id, {
+          id: olympiad.id,
+          name: olympiad.name,
+          url: olympiad.url,
+        });
+      }
+    }
+    const olympiads = Array.from(olympiadMap.values()).sort((a, b) => a.name.localeCompare(b.name));
 
     return NextResponse.json({ events, olympiads });
   } catch (error) {
