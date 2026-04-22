@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React, { FormEvent, useEffect, useState, useRef } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 
 type OlympiadOption = {
@@ -19,9 +18,9 @@ export default function MyOlympiadsPage() {
   const [status, setStatus] = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [editOlympiadId, setEditOlympiadId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editUrl, setEditUrl] = useState("");
-
 
   async function loadOlympiadData() {
     setIsLoading(true);
@@ -31,19 +30,19 @@ export default function MyOlympiadsPage() {
       const response = await fetch("/api/my_olympiads", { cache: "no-store" });
       const data = await response.json();
 
-      setOlympiads(data.olympiads);
-
       if (!response.ok) {
         throw new Error(data.error || "Failed to load olympiads.");
       }
 
-      setIsLoading(false);
+      setOlympiads(data.olympiads || []);
     } catch (loadError) {
       const message = loadError instanceof Error ? loadError.message : "Failed to load olympiads.";
       setError(message);
+    } finally {
       setIsLoading(false);
     }
   }
+
   useEffect(() => {
     if (isLoaded && isSignedIn) {
       loadOlympiadData();
@@ -51,6 +50,76 @@ export default function MyOlympiadsPage() {
       setIsLoading(false);
     }
   }, [isLoaded, isSignedIn]);
+
+  function openEdit(olympiad: OlympiadOption) {
+    setError(null);
+    setStatus(null);
+    setEditOlympiadId(olympiad.id);
+    setEditName(olympiad.name || "");
+    setEditUrl(olympiad.url || "");
+    setIsEditOpen(true);
+  }
+
+  async function deleteOlympiad(id: number) {
+    const confirmed = window.confirm("Delete this olympiad? This action cannot be undone.");
+    if (!confirmed) {
+      return;
+    }
+
+    setError(null);
+    setStatus(null);
+
+    try {
+      const response = await fetch(`/api/my_olympiads/${id}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete olympiad.");
+      }
+      setStatus("Olympiad deleted successfully.");
+      await loadOlympiadData();
+    } catch (deleteError) {
+      const message = deleteError instanceof Error ? deleteError.message : "Failed to delete olympiad.";
+      setError(message);
+    }
+  }
+
+  async function handleOlympiadUpdate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!editOlympiadId) {
+      return;
+    }
+
+    setIsSaving(true);
+    setError(null);
+    setStatus(null);
+
+    try {
+      const response = await fetch(`/api/my_olympiads/${editOlympiadId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: editName,
+          url: editUrl,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to update olympiad.");
+      }
+      setStatus("Olympiad updated successfully.");
+      setIsEditOpen(false);
+      await loadOlympiadData();
+    } catch (saveError) {
+      const message = saveError instanceof Error ? saveError.message : "Unable to update olympiad.";
+      setError(message);
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   if (!isLoaded || isLoading) {
     return <main className="mx-auto max-w-6xl p-6">Loading event manager…</main>;
@@ -76,110 +145,55 @@ export default function MyOlympiadsPage() {
     );
   }
 
-  async function deleteOlympiad(id: number) {
-    try {
-      const response = await fetch(`/api/my_olympiads/${id}`, {
-        method: "DELETE",
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to delete olympiad.");
-      }
-      loadOlympiadData();
-    } catch (deleteError) {
-      const message = deleteError instanceof Error ? deleteError.message : "Failed to delete olympiad.";
-      setError(message);
-    }
-  }
-
-  async function handleOlympiadUpdate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsSaving(true);
-    setError(null);
-    setStatus(null);
-    try {
-
-      const response = await fetch(`/api/my_olympiads/${olympiadId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: editName,
-          url: editUrl,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Unable to update olympiad.");
-      }
-      setStatus("Olympiad updated successfully.");
-      setIsEditOpen(false);
-      await loadOlympiadData();
-    } catch (saveError) {
-      const message = saveError instanceof Error ? saveError.message : "Unable to update olympiad.";
-      setError(message);
-    } finally {
-      setIsSaving(false);
-    }
-  }
   return (
     <main className="mx-auto max-w-5xl p-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold">My Olympiads</h1>
 
-        <Link
-          href="/add-olympiad"
-          className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold"
-        >
-          + Add Olympiad
+        <Link href="/manage" className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
+          Add Olympiad
         </Link>
       </div>
 
-      {error && (
-        <div className="mb-4 text-red-600">{error}</div>
-      )}
+      {error && <div className="mb-4 text-red-600">{error}</div>}
+      {status && <div className="mb-4 text-emerald-700">{status}</div>}
 
       {olympiads.length === 0 ? (
-        <div className="text-slate-600">
-          You don’t have any olympiads yet.
-        </div>
+        <div className="text-slate-600">You don’t have any olympiads yet.</div>
       ) : (
         <div className="grid gap-4">
           {olympiads.map((olympiad) => (
             <div
               key={olympiad.id}
-              className="border rounded-xl p-5 bg-white shadow-sm flex justify-between items-center"
+              className="flex items-center justify-between rounded-xl border bg-white p-5 shadow-sm"
             >
               <div>
-                <h2 className="text-lg font-semibold">
-                  {olympiad.name}
-                </h2>
+                <h2 className="text-lg font-semibold">{olympiad.name}</h2>
 
                 {olympiad.url && (
-                  <a
-                    href={olympiad.url}
-                    target="_blank"
-                    className="text-sm text-blue-600"
-                  >
+                  <a href={olympiad.url} target="_blank" rel="noreferrer" className="text-sm text-blue-600">
                     Visit website
                   </a>
                 )}
               </div>
 
               <div className="flex gap-2">
-                <Link
-                  href={`/my_olympiads/${olympiad.id}`}
-                  className="px-3 py-1 text-sm border rounded-md"
-                >
+                <Link href={`/my_olympiads/${olympiad.id}`} className="rounded-md border px-3 py-1 text-sm">
                   View
                 </Link>
 
                 <button
                   onClick={() => openEdit(olympiad)}
-                  className="px-3 py-1 text-sm bg-slate-900 text-white rounded-md"
+                  className="rounded-md bg-slate-900 px-3 py-1 text-sm text-white"
                 >
                   Edit
+                </button>
+
+                <button
+                  onClick={() => deleteOlympiad(olympiad.id)}
+                  className="rounded-md bg-red-600 px-3 py-1 text-sm font-semibold text-white"
+                >
+                  Delete
                 </button>
               </div>
             </div>
@@ -189,17 +203,10 @@ export default function MyOlympiadsPage() {
 
       {isEditOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <form
-            onSubmit={handleOlympiadUpdate}
-            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl"
-          >
-            <h2 className="text-xl font-semibold text-slate-900">
-              Edit olympiad
-            </h2>
+          <form onSubmit={handleOlympiadUpdate} className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <h2 className="text-xl font-semibold text-slate-900">Edit olympiad</h2>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Update olympiad metadata shared by all related events.
-            </p>
+            <p className="mt-1 text-sm text-slate-500">Update olympiad metadata shared by all related events.</p>
 
             <div className="mt-5 grid gap-4">
               <label className="grid gap-2 text-sm font-medium text-slate-700">
