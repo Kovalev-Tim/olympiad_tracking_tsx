@@ -29,20 +29,6 @@ async function ensureOlympiad({ olympiadId, olympiadName, olympiadUrl }) {
     throw new Error('Select an olympiad or provide a new olympiad name.');
   }
 
-  const { data: existingOlympiad, error: existingError } = await supabase
-    .from('olympiads')
-    .select('id')
-    .ilike('name', trimmedName)
-    .limit(1);
-
-  if (existingError) {
-    throw existingError;
-  }
-
-  if (existingOlympiad.length > 0) {
-    return existingOlympiad[0].id;
-  }
-
   const { data: insertedOlympiad, error: insertError } = await supabase
     .from('olympiads')
     .insert({
@@ -66,8 +52,7 @@ export async function GET(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const [{ data: eventAccess, error: eventsError }, { data: olympiads, error: olympiadsError }] = await Promise.all([
-      supabase
+    const [{ data: eventAccess, error: eventsError }] = supabase
         .from('event_access')
         .select(`
           event_id,
@@ -82,12 +67,7 @@ export async function GET(req) {
           )
         `)
         .eq('user_id', userId)
-        .order('event_id', { ascending: true }),
-      supabase
-        .from('olympiads')
-        .select('id, name, url')
-        .order('name', { ascending: true }),
-    ]);
+        .order('event_id', { ascending: true });
 
     if (eventsError) {
       throw eventsError;

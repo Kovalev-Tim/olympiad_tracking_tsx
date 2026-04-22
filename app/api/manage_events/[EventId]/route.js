@@ -48,20 +48,6 @@ async function ensureOlympiad({ olympiadId, olympiadName, olympiadUrl }) {
     throw new Error('Select an olympiad or provide a new olympiad name.');
   }
 
-  const { data: existingOlympiad, error: existingError } = await supabase
-    .from('olympiads')
-    .select('id')
-    .ilike('name', trimmedName)
-    .limit(1);
-
-  if (existingError) {
-    throw existingError;
-  }
-
-  if (existingOlympiad.length > 0) {
-    return existingOlympiad[0].id;
-  }
-
   const { data: insertedOlympiad, error: insertError } = await supabase
     .from('olympiads')
     .insert({

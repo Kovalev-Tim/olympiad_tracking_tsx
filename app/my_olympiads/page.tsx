@@ -108,11 +108,11 @@ export default function MyOlympiadsPage() {
               </div>
 
               <div className="flex gap-2">
-                <Link href={`/olympiads/${olympiad.id}`} className="px-3 py-1 text-sm border rounded-md">
+                <Link href={`/my_olympiads/${olympiad.id}`} className="px-3 py-1 text-sm border rounded-md">
                   View
                 </Link>
 
-                <Link href={`/olympiads/${olympiad.id}/edit`} className="px-3 py-1 text-sm bg-slate-900 text-white rounded-md">
+                <Link href={`/my_olympiads/${olympiad.id}`} className="px-3 py-1 text-sm bg-slate-900 text-white rounded-md">
                   Edit
                 </Link>
               </div>

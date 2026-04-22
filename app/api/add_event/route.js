@@ -31,37 +31,21 @@ export async function POST(req) {
     const organizers = Array.isArray(dict.organizers) ? dict.organizers[0] : dict.organizers;
     const rewards = Array.isArray(dict.rewards) ? dict.rewards[0] : dict.rewards;
 
-    // Check if olympiad exists
-    let { data: olympiads, error: selectError } = await supabase
+    const { data: insertedOlympiad, error: insertError } = await supabase
       .from('olympiads')
+      .insert({
+        name,
+        fees: billing,
+        requirements,
+        organizers,
+        rewards,
+        url
+      })
       .select('id')
-      .eq('name', name)
-      .limit(1);
+      .single();
 
-    if (selectError) throw selectError;
-
-    let olympiadId;
-
-    if (olympiads.length === 0) {
-      // Insert new olympiad
-      const { data: insertedOlympiad, error: insertError } = await supabase
-        .from('olympiads')
-        .insert({
-          name,
-          fees: billing,
-          requirements,
-          organizers,
-          rewards,
-          url
-        })
-        .select('id')
-        .single();
-
-      if (insertError) throw insertError;
-      olympiadId = insertedOlympiad.id;
-    } else {
-      olympiadId = olympiads[0].id;
-    }
+    if (insertError) throw insertError;
+    const olympiadId = insertedOlympiad.id;
 
     // Insert events
     for (const i of dict.dates) {
