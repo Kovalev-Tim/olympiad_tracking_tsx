@@ -10,38 +10,44 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function GET(req) {
   try {
-    let userId;
-    userId = getAuth(req);
-    if (!userId) {
-      userId = process.env.BASE_USER_ID;
+    const { userId: authenticatedUserId } = getAuth(req);
+
+    if (!authenticatedUserId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const userId = authenticatedUserId;
+
     const { searchParams } = new URL(req.url);
     const limit = Number(searchParams.get("limit")) || 5;
-    // Fetch upcoming events with olympiad names
-    const { data, error } = await supabase
-      .from("olympiad_events")
+    // fetch events from event_access
+    const { data: eventsData, error: eventsError } = await supabase
+      .from('event_access')
       .select(`
-        id,
-        olympiad_id,
-        action,
-        date_start,
-        date_end,
-        olympiads (name)
+        event_id,
+        role,
+        olympiad_events (
+          id,
+          olympiad_id,
+          action,
+          date_start,
+          date_end,
+          olympiads (name)
+        )
       `)
-      .gte("date_end", new Date().toISOString()) // a.date_end >= NOW()
-      .order("date_start", { ascending: true })
-      .limit(limit);
+      .eq('user_id', userId);
 
-    if (error) throw error;
-
-    // Map to desired format
-    const upcoming_events = data.map((row) => ({
-      id: row.id,
-      olympiad_id: row.olympiad_id,
-      name: row.olympiads.name,
-      action: row.action,
-      start: row.date_start,
-      end: row.date_end,
+    if (eventsError) {
+      throw eventsError;
+    }
+    // map
+    const upcoming_events = eventsData.map((row) => ({
+      id: row.olympiad_events.id,
+      olympiad_id: row.olympiad_events.olympiad_id,
+      name: row.olympiad_events.olympiads.name,
+      action: row.olympiad_events.action,
+      start: row.olympiad_events.date_start,
+      end: row.olympiad_events.date_end,
     }));
 
     return NextResponse.json(upcoming_events);

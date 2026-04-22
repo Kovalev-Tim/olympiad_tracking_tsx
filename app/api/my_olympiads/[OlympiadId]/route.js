@@ -13,7 +13,7 @@ function getAuthorizedUserId(req) {
 
 export async function GET(req, { params }) {
   try {
-    const { OlympiadId } = params;
+    const { OlympiadId } = await params;
     const userId = getAuthorizedUserId(req);
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -46,10 +46,11 @@ export async function GET(req, { params }) {
     }
 
     const events = eventsData.map((event) => ({
-      id: event.id,
-      action: event.action,
-      start: event.date_start,
-      end: event.date_end,
+      id: event.olympiad_events.id,
+      action: event.olympiad_events.action,
+      start: event.olympiad_events.date_start,
+      end: event.olympiad_events.date_end,
+      role: event.role
     }));
 
     return NextResponse.json({ olympiad : olympiad, events: events });
@@ -62,13 +63,7 @@ export async function GET(req, { params }) {
 
 export async function PUT(req, { params }) {
   try {
-    const { OlympiadId } = params;
-    const access = await ensureOlympiadAdmin(req, OlympiadId);
-
-    if (access.error) {
-      return access.error;
-    }
-
+    const { OlympiadId } = await params;
     const payload = await req.json();
     const name = payload?.name?.trim();
     const url = payload?.url?.trim() || null;
@@ -84,6 +79,32 @@ export async function PUT(req, { params }) {
 
     if (error) {
       throw error;
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req, { params }) {
+  try {
+    const { OlympiadId } = await params;
+    const { EventsError } = await supabase
+      .from('event_access')
+      .delete()
+      .eq('olympiad_id', OlympiadId);
+
+    if (EventsError) {
+      throw EventsError;
+    }
+    const { OlympiadError } = await supabase
+      .from('olympiads')
+      .delete()
+      .eq('id', OlympiadId);
+
+    if (OlympiadError) {
+      throw OlympiadError;
     }
 
     return NextResponse.json({ success: true });

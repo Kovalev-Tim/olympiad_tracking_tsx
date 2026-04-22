@@ -10,7 +10,12 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export async function GET(req) {
   try {
     const { userId: authenticatedUserId } = getAuth(req);
-    const userId = authenticatedUserId ?? process.env.BASE_USER_ID;
+
+    if (!authenticatedUserId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = authenticatedUserId;
 
     // Fetch events where user has access
     const { data: eventsData, error } = await supabase

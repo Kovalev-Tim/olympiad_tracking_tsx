@@ -114,6 +114,29 @@ export default function OlympiadDetailsPage() {
     }
   }
 
+  async function handleOlympiadDelete() {
+    if (!olympiadId) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/my_olympiads/${olympiadId}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to delete olympiad.");
+      }
+
+      setStatus("Olympiad deleted successfully.");
+      await loadOlympiadData();
+    } catch (deleteError) {
+      const message = deleteError instanceof Error ? deleteError.message : "Unable to delete olympiad.";
+      setError(message);
+    }
+  }
+
   if (!isLoaded || isLoading) {
     return <main className="mx-auto max-w-6xl p-6">Loading olympiad…</main>;
   }
@@ -158,15 +181,20 @@ export default function OlympiadDetailsPage() {
                   </a>
                 )}
               </div>
-              {hasAdminAccess && (
-                <button
-                  type="button"
-                  onClick={() => setIsEditOpen(true)}
-                  className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
-                >
-                  Edit olympiad
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => setIsEditOpen(true)}
+                className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Edit olympiad
+              </button>
+              <button
+                type="button"
+                onClick={handleOlympiadDelete}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Delete olympiad
+              </button>
             </div>
           </section>
 
@@ -177,6 +205,7 @@ export default function OlympiadDetailsPage() {
             ) : (
               <div className="mt-4 space-y-3">
                 {events.map((event) => (
+                  //console.log(event),
                   <article key={event.id} className="rounded-xl border border-slate-200 p-4">
                     <h3 className="font-semibold text-slate-900">{event.action}</h3>
                     <p className="mt-1 text-sm text-slate-600">

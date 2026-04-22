@@ -35,7 +35,8 @@ function formatEventDateRange(start: string, end?: string) {
 }
 
 export default function Calendar({ events }: { events: CalendarEvent[] }) {
-    const calendarEvents = events.map((event) => ({
+    const safeEvents = Array.isArray(events) ? events : [];
+    const calendarEvents = safeEvents.map((event) => ({
         ...event,
         dateLabel: formatEventDateRange(event.start, event.end),
     }));

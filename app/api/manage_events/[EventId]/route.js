@@ -66,7 +66,10 @@ async function ensureOlympiad({ olympiadId, olympiadName, olympiadUrl }) {
 
 export async function PUT(req, { params }) {
   try {
-    const { eventId } = params;
+    const eventId = Number(params.EventId);
+    if (!Number.isInteger(eventId)) {
+      return NextResponse.json({ error: 'Invalid event id.' }, { status: 400 });
+    }
     const access = await ensureAdminAccess(req, eventId);
     if (access.error) {
       return access.error;
@@ -120,9 +123,9 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     //console.log(params);
-    let eventId;
-    if (params.EventId) {
-      eventId = Number(params.EventId);
+    const eventId = Number(params.EventId);
+    if (!Number.isInteger(eventId)) {
+      return NextResponse.json({ error: 'Invalid event id.' }, { status: 400 });
     }
     //console.log(eventId);
     const access = await ensureAdminAccess(req, eventId);

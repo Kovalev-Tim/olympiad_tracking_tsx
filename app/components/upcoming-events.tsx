@@ -19,6 +19,9 @@ export default function UpcomingEvents({ limit }: { limit: number }) {
         fetch(`/api/upcoming?limit=${limit}`)
             .then(async (res) => {
               const data = await res.json();
+              if (!res.ok) {
+                return [];
+              }
               // Checking if the data is an array
               if (!Array.isArray(data)) {
                 console.error("Unexpected data format from /api/upcoming:", data);
